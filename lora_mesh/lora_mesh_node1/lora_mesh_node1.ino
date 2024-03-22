@@ -53,36 +53,16 @@
   #define LED        17
 #endif
 
-// Change to 434.0 or other frequency, must match RX's freq!
-#define RF95_FREQ 915.0
-// Who am i? (client address)
-#define MY_ADDRESS   1
-#define DEST_ADDRESS 2
-#define N_NODES 255
+//Changeable params
+#define RF95_FREQ 915.0   //using 915 MHz for US
+#define MY_ADDRESS   1    //node's address
+#define TX_POWER 2    //transmision power for lab testing
+#define LISTEN_TIME 5000  //time we listen for a message
 
-uint8_t routes[N_NODES]; // full routing table for mesh
-int16_t rssi[N_NODES]; // signal strength info
-
-// Singleton instance of the radio driver
-RH_RF95 rf95(RFM95_CS, RFM95_INT);
-
-// Class to manage message delivery and receipt, using the driver declared above
-RHMesh manager(rf95, MY_ADDRESS);
-
-void updateRoutingTable() {
-  for(uint8_t n=1;n<=N_NODES;n++) {
-    RHRouter::RoutingTableEntry *route = manager.getRouteTo(n);
-    if (n == MY_ADDRESS) {
-      routes[n-1] = 255; // self
-    } else {
-      routes[n-1] = route->next_hop;
-      if (routes[n-1] == 0) {
-        // if we have no route to the node, reset the received signal strength
-        rssi[n-1] = 0;
-      }
-    }
-  }
-}
+RH_RF95 rf95(RFM95_CS, RFM95_INT);  //radio driver
+RHMesh manager(rf95, MY_ADDRESS);   //mesh manager instance
+uint8_t response[] = "Node 1 responding";
+char buf[RH_RF95_MAX_MESSAGE_LEN];  //allocate memory for message buffer on the heap
 
 char* getErrorString(uint8_t error) {
   switch(error) {
@@ -108,7 +88,6 @@ void setup() {
   Serial.println("Feather Addressed RFM95 RX Test!");
   Serial.println();
 
-  // manual reset
   digitalWrite(RFM95_RST, LOW);
   delay(10);
   digitalWrite(RFM95_RST, HIGH);
@@ -122,49 +101,25 @@ void setup() {
   if (!rf95.setFrequency(RF95_FREQ)) {
     Serial.println("setFrequency failed");
   }
-  rf95.setTxPower(2, false);  
+  rf95.setTxPower(TX_POWER, false);  
   Serial.print("RFM95 radio @");  Serial.print((int)RF95_FREQ);  Serial.println(" MHz");
-
-  for(uint8_t n=1;n<=N_NODES;n++) {
-    routes[n-1] = 0;
-    rssi[n-1] = 0;
-  }
 }
 
-// Dont put this on the stack:
-uint8_t data[] = "Node 1 speaking";
-uint8_t response[] = "Node 1 responding";
-// Dont put this on the stack:
-char buf[RH_RF95_MAX_MESSAGE_LEN];
-
 void loop() {
-    updateRoutingTable();
+    uint8_t len = sizeof(buf);
+    uint8_t from;
+    if (manager.recvfromAckTimeout((uint8_t *)buf, &len, LISTEN_TIME, &from)) {  // listen for incoming messages
+      buf[len] = '\0'; // null terminate string
+      Serial.print("Got a message from address: "); Serial.print(from);
+      Serial.print(" [RSSI :");
+      Serial.print(rf95.lastRssi());
+      Serial.print("] : ");
+      Serial.println(buf);
 
-    // listen for incoming messages. Wait a random amount of time before we transmit
-    // again to the next node
-    unsigned long nextTransmit = millis() + random(3000, 5000);
-    while (nextTransmit > millis()) {
-      int waitTime = nextTransmit - millis();
-      uint8_t len = sizeof(buf);
-      uint8_t from;
-      if (manager.recvfromAckTimeout((uint8_t *)buf, &len, waitTime, &from)) {
-        buf[len] = '\0'; // null terminate string
-        Serial.print("Got a message from address: "); Serial.print(from);
-        Serial.print(" [RSSI :");
-        Serial.print(rf95.lastRssi());
-        Serial.print("] : ");
-        Serial.println(buf);
-
-        uint8_t error = manager.sendtoWait(response, sizeof(response), from);
-        if (error != RH_ROUTER_ERROR_NONE) {
-          Serial.print("Error: ");
-          Serial.println(getErrorString(error));
-        }
-
-        RHRouter::RoutingTableEntry *route = manager.getRouteTo(from);
-        if (route->next_hop != 0) {
-          rssi[route->next_hop-1] = rf95.lastRssi();
-        }
+      uint8_t error = manager.sendtoWait(response, sizeof(response), from);   //respond to messages
+      if (error != RH_ROUTER_ERROR_NONE) {
+        Serial.print("Error: ");
+        Serial.println(getErrorString(error));
       }
     }
 }
