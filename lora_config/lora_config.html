@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<head>
+    <title>Lora Config</title>
+</head>
+<body>
+    <h1>Lora Config</h1>
+
+    <label for="bandwidth_input">Enter Bandwidth:</label>
+    <input type="text" id="bandwidth_input" name="bandwidth_input">
+
+    <label for="spreading_factor_input">Enter Spreading Factor:</label>
+    <input type="text" id="spreading_factor_input" name="spreading_factor_input" pattern="^[0-9]+$">
+
+    <label for="coding_rate_input">Enter Coding Rate:</label>
+    <input type="text" id="coding_rate_input" name="coding_rate_input" pattern="^[0-9]+$">
+
+    <label for="tx_power_input">Enter Tx Power:</label>
+    <input type="text" id="tx_power_input" name="tx_power_input" pattern="^[0-9]+$">
+
+    <button id="update_config">Update Config</button>
+    <button id="reconnect_button">Reconnect Node</button>
+
+    <script src="static/configurator.js"></script>
+
+    <p id="message_out">Message Received: </p>
+</body>

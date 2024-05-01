@@ -80,8 +80,27 @@ char* getErrorString(uint8_t error) {
   return "unknown";
 }
 
+String getValue(String data, char separator, int index) {
+    int found = 0;
+    int strIndex[] = {0, -1};
+    int maxIndex = data.length() - 1;
+
+    for (int i = 0; i <= maxIndex && found <= index; i++) {
+        if (data.charAt(i) == separator || i == maxIndex) {
+            if (found == index) {
+                strIndex[1] = (i == maxIndex && data.charAt(i) != separator) ? i + 1 : i;
+            }
+            found++;
+            if (found <= index) {
+                strIndex[0] = i + 1;
+            }
+        }
+    }
+    return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
+}
+
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   pinMode(RFM95_RST, OUTPUT);
   digitalWrite(RFM95_RST, HIGH);
 
@@ -106,6 +125,74 @@ void setup() {
 }
 
 void loop() {
+    if (Serial.available() > 0) {
+      String input = Serial.readStringUntil('\n'); // Read until newline character
+      
+      String txPower = getValue(input, ',', 0);
+      String bandwidth = getValue(input, ',', 1);
+      String spreading_factor = getValue(input, ',', 2);
+      String coding_rate = getValue(input, ',', 3);
+
+      if (txPower != "noupdate"){
+        int tp = txPower.toInt();
+        if (tp != 0) {
+            if (tp > 0 && tp < 21) {
+              rf95.setTxPower(tp, false);
+              String output = "Set transmission power to: " + String(tp);
+              Serial.println(output);
+            }
+            else {
+              Serial.println("Error: Invalid power value");
+            } 
+        } else {
+            Serial.println("Error: Invalid tp input");
+        }
+      }
+
+      if (bandwidth != "noupdate"){
+        int bw = bandwidth.toInt();
+          if (bw != 0) {
+              rf95.setSignalBandwidth(bw);
+              String output = "Set bandwidth to: " + String(bw);
+              Serial.println(output);
+          } else {
+              Serial.println("Error: Invalid bandwidth input");
+          }
+      }
+
+      if (spreading_factor != "noupdate"){
+          int sf = spreading_factor.toInt();
+          if (sf != 0) {
+              if (sf > 5 && sf < 13) {
+                rf95.setSpreadingFactor(sf);
+                String output = "Set spreading factor to: " + String(sf);
+                Serial.println(output);
+              }
+              else {
+                Serial.println("Error: Invalid spreading factor");
+              } 
+          } else {
+              Serial.println("Error: Invalid sf input");
+          }
+      }
+
+      if (coding_rate != "noupdate"){
+        int cr = coding_rate.toInt();
+        if (cr != 0) {
+            if (cr > 4 && cr < 9) {
+              rf95.setCodingRate4(cr);
+              String output = "Set coding rate to: " + String(cr);
+              Serial.println(output);
+            }
+            else {
+              Serial.println("Error: Invalid coding rate");
+            } 
+        } else {
+            Serial.println("Error: Invalid cr input");
+        }
+      }
+    }
+
     uint8_t len = sizeof(buf);
     uint8_t from;
     if (manager.recvfromAckTimeout((uint8_t *)buf, &len, LISTEN_TIME, &from)) {  // listen for incoming messages
