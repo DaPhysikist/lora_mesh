@@ -201,6 +201,9 @@ void loop() {
       Serial.print(" [RSSI :");
       Serial.print(rf95.lastRssi());
       Serial.print("] : ");
+      Serial.print(" [SNR :");
+      Serial.print(rf95.lastSNR());
+      Serial.print("] : ");
       Serial.println(buf);
 
       uint8_t error = manager.sendtoWait(response, sizeof(response), from);   //respond to messages
