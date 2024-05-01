@@ -7,4 +7,4 @@ Node 1 is setup to respond to any messages that it gets, while all other nodes a
 
 To configure LoRa parameters for a node, first connect to the node over USB/Serial. Then, open a terminal and navigate to the repository's root directory. From there, run either ./run (Windows) or ./run.sh (Mac/Linux). The web interface for configuration will open and can be accessed in a web browser at localhost:6543.
 
-Some code was adapted from [Nootropic](https://github.com/nootropicdesign/lora-mesh)  and [Adafruit](https://github.com/adafruit/RadioHead/tree/master/examples/feather).
+Some code was adapted from [Nootropic](https://github.com/nootropicdesign/lora-mesh)  and [Adafruit](https://github.com/adafruit/RadioHead/tree/master/examples/feather). This source was also helpful: https://arduino.stackexchange.com/questions/1013/how-do-i-split-an-incoming-string.
