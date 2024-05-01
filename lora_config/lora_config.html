@@ -6,7 +6,7 @@
     <h1>Lora Config</h1>
 
     <label for="bandwidth_input">Enter Bandwidth:</label>
-    <input type="text" id="bandwidth_input" name="bandwidth_input">
+    <input type="text" id="bandwidth_input" name="bandwidth_input" pattern="^[0-9]+$">
 
     <label for="spreading_factor_input">Enter Spreading Factor:</label>
     <input type="text" id="spreading_factor_input" name="spreading_factor_input" pattern="^[0-9]+$">
@@ -19,6 +19,16 @@
 
     <button id="update_config">Update Config</button>
     <button id="reconnect_button">Reconnect Node</button>
+
+    <br>
+    <h4>Data Rate Test:</h4>
+    <label for="duration_input">Enter Duration:</label>
+    <input type="text" id="duration_input" name="duration_input" pattern="^[0-9]+$">
+    <label for="packet_size_input">Enter Packet Size:</label>
+    <input type="text" id="packet_size_input" name="packet_size_input" pattern="^[0-9]+$">
+    <label for="num_packets_input">Enter Number of Packets:</label>
+    <input type="text" id="num_packets_input" name="num_packets_input" pattern="^[0-9]+$">
+    <button id="data_test_button">Start Test</button>
 
     <script src="static/configurator.js"></script>
 

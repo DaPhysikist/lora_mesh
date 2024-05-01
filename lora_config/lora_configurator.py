@@ -50,6 +50,13 @@ def config_params(parameters: dict):
 def reconnect_node():
     connect_to_feather()
 
+@app.post("/data_rate_test")
+def data_rate_test(parameters: dict):
+    duration = parameters["duration"]
+    packetSize = parameters["packet_size"]
+    numPackets = parameters["num_packets"]
+    print(parameters)
+
 @app.websocket("/message")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()

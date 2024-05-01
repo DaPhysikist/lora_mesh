@@ -1,23 +1,23 @@
-var msgSocket = new WebSocket("ws://localhost:6543/message");       
+let msgSocket = new WebSocket("ws://localhost:6543/message");       
 msgSocket.onmessage = function(event) {
-    var msgOut = document.getElementById("message_out");
+    let msgOut = document.getElementById("message_out");
     msgOut.innerHTML = msgOut.innerHTML + "<br>" + event.data;
 };
 
 document.addEventListener('DOMContentLoaded', (event) => {
-    var bandwidthInput = document.getElementById("bandwidth_input");
-    var spreadingFactorInput = document.getElementById("spreading_factor_input");
-    var codingRateInput = document.getElementById("coding_rate_input");
-    var txPowerInput = document.getElementById("tx_power_input");
+    let bandwidthInput = document.getElementById("bandwidth_input");
+    let spreadingFactorInput = document.getElementById("spreading_factor_input");
+    let codingRateInput = document.getElementById("coding_rate_input");
+    let txPowerInput = document.getElementById("tx_power_input");
 
-    var updateBtn = document.getElementById("update_config");
+    let updateBtn = document.getElementById("update_config");
     updateBtn.addEventListener("click", (event) => {
         try {
-            var bValue = validator(bandwidthInput.value);
-            var sfValue = validator(spreadingFactorInput.value);
-            var crValue = validator(codingRateInput.value);
-            var tpValue = validator(txPowerInput.value);
-            var data = { bandwidth: bValue, tx_power: tpValue, spreading_factor: sfValue, coding_rate: crValue };
+            let bValue = validator(bandwidthInput.value);
+            let sfValue = validator(spreadingFactorInput.value);
+            let crValue = validator(codingRateInput.value);
+            let tpValue = validator(txPowerInput.value);
+            let data = { bandwidth: bValue, tx_power: tpValue, spreading_factor: sfValue, coding_rate: crValue };
             fetch(`/config_params`, {
                 method: 'POST',
                 headers: {
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     });
 
-    var connectBtn = document.getElementById("reconnect_button");
+    let connectBtn = document.getElementById("reconnect_button");
     connectBtn.addEventListener("click", (event) => {
         try {
             fetch(`/reconnect_node`, {
@@ -38,6 +38,28 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 headers: {
                     'Content-Type': 'application/json',
                 }
+            });
+        } catch (error) {
+            console.error("Error sending command:", error);
+        }
+    });
+
+    let durationInput = document.getElementById("duration_input");
+    let packetSizeInput = document.getElementById("packet_size_input");
+    let numPacketsInput = document.getElementById("num_packets_input");
+    let dtBtn = document.getElementById("data_test_button");
+    dtBtn.addEventListener("click", (event) => {
+        try {
+            let dValue = validator(durationInput.value);
+            let psValue = validator(packetSizeInput.value);
+            let npValue = validator(numPacketsInput.value);
+            let data = { duration: dValue, packet_size: psValue, num_packets: npValue };
+            fetch(`/data_rate_test`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
             });
         } catch (error) {
             console.error("Error sending command:", error);
