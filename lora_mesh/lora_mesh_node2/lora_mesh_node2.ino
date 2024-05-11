@@ -303,7 +303,7 @@ void loop() {
                   uint8_t from;
                   if (manager.recvfromAckTimeout(buf, &len, listenTime, &from)) {
                     uint16_t packet_id = (buf[0] << 8) | (buf[1]);
-                    uint8_t correctCount;
+                    uint8_t correctCount = 0;
                     for (uint8_t i = 2; i < len; i++){
                       if ((i-1) == buf[i]){
                         correctCount++;
