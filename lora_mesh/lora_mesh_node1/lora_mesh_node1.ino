@@ -235,11 +235,11 @@ void loop() {
         rf95.setTxPower(20, false);
         txPower = i;
         for (int j = 12; j >= 6; j--){
-          //rf95.setSpreadingFactor(i);
-          //spreadingFactor = j;
-          for (int k = 62.5; k<=500; k*=2){
-            bandwidth = k * 1000;
-            rf95.setSignalBandwidth(bandwidth);
+          rf95.setSpreadingFactor(i);
+          spreadingFactor = j;
+          //for (int k = 62.5; k<=500; k*=2){
+           // bandwidth = k * 1000;
+            //rf95.setSignalBandwidth(bandwidth);
             for (int l = 0; l < 10; l++){
               uint8_t packet_id_hi = (packet_id >> 8);
               uint8_t packet_id_lo = (packet_id & 0xFF);
@@ -295,7 +295,7 @@ void loop() {
                 packet_id++;
               }
             }
-         }
+         //}
         }
       }
       delay(TEST_DELAY);  
