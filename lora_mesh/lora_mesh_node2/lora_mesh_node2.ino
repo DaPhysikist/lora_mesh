@@ -218,9 +218,6 @@ void loop() {
         Serial.println(getErrorString(error));
       } else {
         Serial.println("Message sent successfully.");
-        if (str == "begin test"){
-          beginTest = 1;
-        }
       }
 
       // listen for incoming messages. Wait a random amount of time before we transmit
@@ -232,6 +229,10 @@ void loop() {
         uint8_t from;
         if (manager.recvfromAckTimeout((uint8_t *)buf, &len, LISTEN_TIME, &from)) {
           buf[len] = '\0'; // null terminate string
+          if (buf == "begin test"){
+            beginTest = 1;
+            Serial.println("Begin the test");
+          }
           Serial.print("Got a message from address: "); Serial.print(from);
           Serial.print(" [RSSI :");
           Serial.print(rf95.lastRssi());

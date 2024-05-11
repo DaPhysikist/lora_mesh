@@ -197,6 +197,7 @@ void loop() {
     char buf[RH_RF95_MAX_MESSAGE_LEN];
     uint8_t len = sizeof(buf);
     uint8_t from;
+    String responseStr = "Node 1 responding";
     if (manager.recvfromAckTimeout((uint8_t *)buf, &len, LISTEN_TIME, &from)) {  // listen for incoming messages
       buf[len] = '\0'; // null terminate string
       Serial.print("Got a message from address: "); Serial.print(from);
@@ -207,11 +208,17 @@ void loop() {
       Serial.print(rf95.lastSNR());
       Serial.print("] : ");
       Serial.println(buf);
+
       if (buf == "begin test"){
         beginTest = 1;
+        Serial.println("Begin the test");
+        responseStr = "begin test";
       }
 
-      uint8_t response[] = "Node 1 responding";
+      uint8_t response[responseStr.length() + 1];
+      memcpy(response, responseStr.c_str(), responseStr.length() + 1);
+      response[responseStr.length()] = 0;
+
       uint8_t error = manager.sendtoWait(response, sizeof(response), from);   //respond to messages
       if (error != RH_ROUTER_ERROR_NONE) {
         Serial.print("Error: ");
