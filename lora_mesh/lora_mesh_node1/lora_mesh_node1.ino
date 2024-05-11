@@ -58,11 +58,11 @@
 #define MY_ADDRESS   1    //node's address
 #define TX_POWER 2    //transmision power for lab testing
 #define LISTEN_TIME 5000  //time we listen for a message
+#define TEST_DELAY 1000  //wait 1 second before beginning next cycle
 
 RH_RF95 rf95(RFM95_CS, RFM95_INT);  //radio driver
 RHMesh manager(rf95, MY_ADDRESS);   //mesh manager instance
-uint8_t response[] = "Node 1 responding";
-char buf[RH_RF95_MAX_MESSAGE_LEN];  //allocate memory for message buffer on the heap
+int beginTest;
 
 char* getErrorString(uint8_t error) {
   switch(error) {
@@ -125,6 +125,7 @@ void setup() {
 }
 
 void loop() {
+  if (beginTest == 0){
     if (Serial.available() > 0) {
       String input = Serial.readStringUntil('\n'); // Read until newline character
       
@@ -193,6 +194,7 @@ void loop() {
       }
     }
 
+    char buf[RH_RF95_MAX_MESSAGE_LEN];
     uint8_t len = sizeof(buf);
     uint8_t from;
     if (manager.recvfromAckTimeout((uint8_t *)buf, &len, LISTEN_TIME, &from)) {  // listen for incoming messages
@@ -205,11 +207,93 @@ void loop() {
       Serial.print(rf95.lastSNR());
       Serial.print("] : ");
       Serial.println(buf);
+      if (buf == "begin test"){
+        beginTest = 1;
+      }
 
+      uint8_t response[] = "Node 1 responding";
       uint8_t error = manager.sendtoWait(response, sizeof(response), from);   //respond to messages
       if (error != RH_ROUTER_ERROR_NONE) {
         Serial.print("Error: ");
         Serial.println(getErrorString(error));
       }
     }
+  }
+  else if (beginTest == 1){
+    while (1){
+      uint16_t packet_id = 0;
+      int txPower;
+      int spreadingFactor;
+      int bandwidth;
+      for (int i = 20; i >= 2; i--){
+        rf95.setTxPower(20, false);
+        txPower = i;
+        for (int j = 12; j >= 6; j--){
+          rf95.setSpreadingFactor(i);
+          spreadingFactor = j;
+          for (int k = 62.5; k<=500; k*=2){
+            bandwidth = k * 1000;
+            rf95.setSignalBandwidth(bandwidth);
+            bandwidth = k;
+            for (int l = 0; l < 10; l++){
+              uint8_t packet_id_hi = (packet_id >> 8);
+              uint8_t packet_id_lo = (packet_id & 0xFF);
+
+              //Calculating on air time, based on datasheet formula on page 29
+              float symbolTime = 1000.0 * pow(2, spreadingFactor) / bandwidth;  //symbol time in ms
+
+              uint8_t preambleLength = 8;
+              float preambleTime = (preambleLength + 4.25)*symbolTime; //preamble time in ms
+
+              uint8_t de = 0;    //low data rate is off by default
+              if (symbolTime > 16.0){       //threshold for low data rate to be on is 16 ms symbol time according to RadioHead
+                de = 1;
+              }      
+              uint8_t cr = 1;  //default coding rate is 4/5, which is 1 by the datasheet
+              uint8_t ih = 0; //explicit instead of implicit header
+              uint8_t crc = 1; //crc on
+              int payloadLength = 12;  //twelve bytes in payload, including packet id  
+
+              float payloadTime = (8 + max(ceil((8*payloadLength-4*spreadingFactor+28+16*crc-20*ih)/(4*(spreadingFactor-2*de)))*(cr+4), 0))*symbolTime;  //calculate payload time in ms based on datasheet formula
+
+              int listenTime = 2*ceil(preambleTime+payloadTime);  //calculate on air time in ms, rounded up to nearest integer, then multiply by two to account for both ways
+              uint8_t buf[12];
+              uint8_t len = sizeof(buf);
+              uint8_t from;
+              if (manager.recvfromAckTimeout(buf, &len, listenTime, &from)) {  // listen for incoming messages
+                uint16_t packet_id = (buf[0] << 8) | (buf[1]);
+                uint8_t correctCount;
+                for (uint8_t i = 2; i < len; i++){
+                  if ((i-1) == buf[i]){
+                    correctCount++;
+                  }
+                }
+                Serial.print("Got a message from address: "); Serial.print(from);
+                Serial.print(" [Packet ID :");
+                Serial.print(packet_id);
+                Serial.print(" [RSSI :");
+                Serial.print(rf95.lastRssi());
+                Serial.print("] [SNR :");
+                Serial.print(rf95.lastSNR());
+                Serial.print("]  [# Correct Bytes Received : ");
+                Serial.println(correctCount);
+                Serial.print("]");
+
+                uint8_t packet_id_hi = (packet_id >> 8);
+                uint8_t packet_id_lo = (packet_id & 0xFF);
+                uint8_t response[] = {packet_id_hi, packet_id_lo, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A};
+                uint8_t error = manager.sendtoWait(response, sizeof(response), from);   //respond to messages
+                if (error != RH_ROUTER_ERROR_NONE) {
+                  Serial.print("Error: ");
+                  Serial.println(getErrorString(error));
+                }
+                packet_id++;
+              }
+            }
+          }
+        }
+      }
+      delay(TEST_DELAY);  
+    }
+  }
 }

@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     let spreadingFactorInput = document.getElementById("spreading_factor_input");
     let codingRateInput = document.getElementById("coding_rate_input");
     let txPowerInput = document.getElementById("tx_power_input");
+    let messageInput = document.getElementById("custom_message");
 
     let updateBtn = document.getElementById("update_config");
     updateBtn.addEventListener("click", (event) => {
@@ -17,7 +18,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
             let sfValue = validator(spreadingFactorInput.value);
             let crValue = validator(codingRateInput.value);
             let tpValue = validator(txPowerInput.value);
-            let data = { bandwidth: bValue, tx_power: tpValue, spreading_factor: sfValue, coding_rate: crValue };
+            let messValue = validator(messageInput.value);
+            let data = { bandwidth: bValue, tx_power: tpValue, spreading_factor: sfValue, coding_rate: crValue, message: messValue };
             fetch(`/config_params`, {
                 method: 'POST',
                 headers: {

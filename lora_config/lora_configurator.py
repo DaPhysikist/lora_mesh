@@ -42,7 +42,8 @@ def config_params(parameters: dict):
    sfValue = parameters["spreading_factor"]
    crValue = parameters["coding_rate"]
    tpValue = parameters["tx_power"]
-   param_message = f"{tpValue},{bValue},{sfValue},{crValue}\n"
+   message = parameters["message"]
+   param_message = f"{tpValue},{bValue},{sfValue},{crValue},{message}\n"
    byte_message = param_message.encode('utf-8')
    ser.write(byte_message)
 
@@ -61,12 +62,15 @@ def data_rate_test(parameters: dict):
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     try:
-        while True:
-            if ser.in_waiting > 0:
-                line = ser.readline().decode('utf-8').strip()
-                print(line)
-                await websocket.send_text(line)                          
-            await asyncio.sleep(0.1)            
+        with open("../serial_output.log", "a") as log_file:
+            while True:
+                if ser.in_waiting > 0:
+                    line = ser.readline().decode('utf-8').strip()
+                    print(line)
+                    log_file.write(line + '\n')
+                    log_file.flush()
+                    await websocket.send_text(line)                          
+                await asyncio.sleep(0.1)            
     except Exception as e:
         print(f"Error: {e}")
         await websocket.close()
@@ -74,5 +78,3 @@ async def websocket_endpoint(websocket: WebSocket):
 if __name__ == "__main__":
     connect_to_feather()
     uvicorn.run(app, host="0.0.0.0", port=6543)     #starts the app
-
-
