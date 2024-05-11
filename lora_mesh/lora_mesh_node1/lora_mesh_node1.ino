@@ -199,7 +199,6 @@ void loop() {
     uint8_t from;
     String responseStr = "Node 1 responding";
     if (manager.recvfromAckTimeout((uint8_t *)buf, &len, LISTEN_TIME, &from)) {  // listen for incoming messages
-      buf[len] = '\0'; // null terminate string
       Serial.print("Got a message from address: "); Serial.print(from);
       Serial.print(" [RSSI :");
       Serial.print(rf95.lastRssi());
@@ -209,7 +208,7 @@ void loop() {
       Serial.print("] : ");
       Serial.println(buf);
 
-      if (buf == "begin test"){
+      if (strcmp(buf, "begin test") == 0){
         beginTest = 1;
         Serial.println("Begin the test");
         responseStr = "begin test";

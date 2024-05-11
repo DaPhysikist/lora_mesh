@@ -228,8 +228,7 @@ void loop() {
         uint8_t len = sizeof(buf);
         uint8_t from;
         if (manager.recvfromAckTimeout((uint8_t *)buf, &len, LISTEN_TIME, &from)) {
-          buf[len] = '\0'; // null terminate string
-          if (buf == "begin test"){
+          if (strcmp(buf, "begin test") == 0){
             beginTest = 1;
             Serial.println("Begin the test");
           }
