@@ -241,9 +241,6 @@ void loop() {
            // bandwidth = k * 1000;
             //rf95.setSignalBandwidth(bandwidth);
             for (int l = 0; l < 10; l++){
-              uint8_t packet_id_hi = (packet_id >> 8);
-              uint8_t packet_id_lo = (packet_id & 0xFF);
-
               //Calculating on air time, based on datasheet formula on page 29
               float symbolTime = 1000.0 * pow(2, spreadingFactor) / bandwidth;  //symbol time in ms
 
@@ -257,16 +254,18 @@ void loop() {
               uint8_t cr = 1;  //default coding rate is 4/5, which is 1 by the datasheet
               uint8_t ih = 0; //explicit instead of implicit header
               uint8_t crc = 1; //crc on
-              int payloadLength = 12;  //twelve bytes in payload, including packet id  
+              int payloadLength = 16;  //twelve bytes in payload, including packet id  
 
               float payloadTime = (8 + max(ceil((8*payloadLength-4*spreadingFactor+28+16*crc-20*ih)/(4*(spreadingFactor-2*de)))*(cr+4), 0))*symbolTime;  //calculate payload time in ms based on datasheet formula
 
               int listenTime = 2*ceil(preambleTime+payloadTime);  //calculate on air time in ms, rounded up to nearest integer, then multiply by two to account for both ways
-              uint8_t buf[12];
+              uint8_t buf[16];
               uint8_t len = sizeof(buf);
               uint8_t from;
               if (manager.recvfromAckTimeout(buf, &len, listenTime, &from)) {  // listen for incoming messages
                 uint16_t packet_id = (buf[0] << 8) | (buf[1]);
+                uint32_t sent_time = ((buf[2] << 24) | (buf[3] << 16) | (buf[4] << 8) | (buf[5]));
+                uint32_t recv_time = millis();
                 uint8_t correctCount = 0;
                 for (uint8_t i = 2; i < len; i++){
                   if ((i-1) == buf[i]){
@@ -276,6 +275,10 @@ void loop() {
                 Serial.print("Got a message from address: "); Serial.print(from);
                 Serial.print(" [Packet ID :");
                 Serial.print(packet_id);
+                Serial.print(" [Sent Time :");
+                Serial.print(sent_time);
+                Serial.print(" [Recv Time :");
+                Serial.print(recv_time);
                 Serial.print(" [RSSI :");
                 Serial.print(rf95.lastRssi());
                 Serial.print("] [SNR :");
@@ -286,13 +289,20 @@ void loop() {
 
                 uint8_t packet_id_hi = (packet_id >> 8);
                 uint8_t packet_id_lo = (packet_id & 0xFF);
-                uint8_t response[] = {packet_id_hi, packet_id_lo, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A};
+                uint32_t sentTime = millis();
+                uint8_t sentTime_bytes[4];
+                sentTime_bytes[0] = (sentTime >> 24) & 0xFF;
+                sentTime_bytes[1] = (sentTime >> 16) & 0xFF;
+                sentTime_bytes[2] = (sentTime >> 8) & 0xFF;
+                sentTime_bytes[3] = sentTime & 0xFF;
+                uint8_t response[] = {packet_id_hi, packet_id_lo, sentTime_bytes[0], sentTime_bytes[1], sentTime_bytes[2], sentTime_bytes[3], 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A};
                 uint8_t error = manager.sendtoWait(response, sizeof(response), from);   //respond to messages
                 if (error != RH_ROUTER_ERROR_NONE) {
                   Serial.print("Error: ");
                   Serial.println(getErrorString(error));
                 }
                 packet_id++;
+                delay(1);
               }
             }
          //}
