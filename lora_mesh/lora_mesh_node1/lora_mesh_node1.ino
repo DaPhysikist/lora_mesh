@@ -231,12 +231,12 @@ void loop() {
       int txPower;
       int spreadingFactor = 7;
       int bandwidth = 125000;
-      //for (int k = 62.5; k<=500; k*=2){
-        // bandwidth = k * 1000;
-        //rf95.setSignalBandwidth(bandwidth);
-        for (int j = 12; j >= 6; j--){
-          rf95.setSpreadingFactor(j);
-          spreadingFactor = j;
+      for (int k = 62.5; k<=500; k*=2){
+        bandwidth = k * 1000;
+        rf95.setSignalBandwidth(bandwidth);
+        //for (int j = 12; j >= 6; j--){
+          //rf95.setSpreadingFactor(j);
+          //spreadingFactor = j;
           for (int i = 20; i >= 2; i--){
             rf95.setTxPower(i, false);
             txPower = i;
