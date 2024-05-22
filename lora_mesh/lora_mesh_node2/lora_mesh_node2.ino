@@ -331,7 +331,7 @@ void loop() {
                     Serial.print(rf95.lastSNR());
                     Serial.print("]  [# Correct Bytes Received : ");
                     Serial.println(correctCount);
-                    Serial.print("]");
+                    Serial.println("]");
                   }
                 }
 
