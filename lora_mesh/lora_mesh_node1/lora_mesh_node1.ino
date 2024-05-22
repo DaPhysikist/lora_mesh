@@ -267,8 +267,8 @@ void loop() {
                 uint32_t sent_time = ((buf[2] << 24) | (buf[3] << 16) | (buf[4] << 8) | (buf[5]));
                 uint32_t recv_time = millis();
                 uint8_t correctCount = 0;
-                for (uint8_t i = 2; i < len; i++){
-                  if ((i-1) == buf[i]){
+                for (uint8_t i = 6; i < len; i++){
+                  if ((i-5) == buf[i]){
                     correctCount++;
                   }
                 }
