@@ -231,12 +231,12 @@ void loop() {
       int txPower;
       int spreadingFactor = 7;
       int bandwidth = 125000;
-      for (int k = 62.5; k<=500; k*=2){
-        bandwidth = k * 1000;
-        rf95.setSignalBandwidth(bandwidth);
-        //for (int j = 12; j >= 6; j--){
-          //rf95.setSpreadingFactor(j);
-          //spreadingFactor = j;
+      //for (int k = 62.5; k<=500; k*=2){
+        //bandwidth = k * 1000;
+        //rf95.setSignalBandwidth(bandwidth);
+        for (int j = 9; j >= 7; j--){
+          rf95.setSpreadingFactor(j);
+          spreadingFactor = j;
           for (int i = 20; i >= 2; i--){
             rf95.setTxPower(i, false);
             txPower = i;
@@ -275,11 +275,11 @@ void loop() {
                 Serial.print("Got a message from address: "); Serial.print(from);
                 Serial.print(" [Packet ID :");
                 Serial.print(packet_id);
-                Serial.print(" [Sent Time :");
+                Serial.print("] [Sent Time :");
                 Serial.print(sent_time);
-                Serial.print(" [Recv Time :");
+                Serial.print("] [Recv Time :");
                 Serial.print(recv_time);
-                Serial.print(" [RSSI :");
+                Serial.print("] [RSSI :");
                 Serial.print(rf95.lastRssi());
                 Serial.print("] [SNR :");
                 Serial.print(rf95.lastSNR());
