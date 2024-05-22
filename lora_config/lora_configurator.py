@@ -1,3 +1,4 @@
+import datetime
 from fastapi import FastAPI, WebSocket
 from fastapi.responses import Response
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -62,7 +63,7 @@ def data_rate_test(parameters: dict):
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     try:
-        with open("../serial_output.log", "a") as log_file:
+        with open(log_file_name, "a") as log_file:
             while True:
                 if ser.in_waiting > 0:
                     line = ser.readline().decode('utf-8').strip()
@@ -77,4 +78,6 @@ async def websocket_endpoint(websocket: WebSocket):
   
 if __name__ == "__main__":
     connect_to_feather()
+    current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    log_file_name = f"../serial_output_{current_time}.log"
     uvicorn.run(app, host="0.0.0.0", port=6543)     #starts the app
