@@ -285,7 +285,7 @@ void loop() {
                 Serial.print(rf95.lastSNR());
                 Serial.print("]  [# Correct Bytes Received : ");
                 Serial.println(correctCount);
-                Serial.print("]");
+                Serial.println("]");
 
                 uint8_t packet_id_hi = (packet_id >> 8);
                 uint8_t packet_id_lo = (packet_id & 0xFF);
