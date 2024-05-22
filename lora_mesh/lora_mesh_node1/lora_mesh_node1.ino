@@ -231,15 +231,15 @@ void loop() {
       int txPower;
       int spreadingFactor = 7;
       int bandwidth = 125000;
-      for (int i = 20; i >= 2; i--){
-        rf95.setTxPower(20, false);
-        txPower = i;
+      //for (int k = 62.5; k<=500; k*=2){
+        // bandwidth = k * 1000;
+        //rf95.setSignalBandwidth(bandwidth);
         for (int j = 12; j >= 6; j--){
-          rf95.setSpreadingFactor(i);
+          rf95.setSpreadingFactor(j);
           spreadingFactor = j;
-          //for (int k = 62.5; k<=500; k*=2){
-           // bandwidth = k * 1000;
-            //rf95.setSignalBandwidth(bandwidth);
+          for (int i = 20; i >= 2; i--){
+            rf95.setTxPower(i, false);
+            txPower = i;
             for (int l = 0; l < 10; l++){
               //Calculating on air time, based on datasheet formula on page 29
               float symbolTime = 1000.0 * pow(2, spreadingFactor) / bandwidth;  //symbol time in ms
@@ -305,9 +305,9 @@ void loop() {
                 delay(1);
               }
             }
-         //}
+          }
         }
-      }
+      //}
       delay(TEST_DELAY);  
     }
   }
