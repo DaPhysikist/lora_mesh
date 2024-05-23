@@ -250,17 +250,20 @@ void loop() {
       }
     }
     else if (beginTest == 1) {
+      uint32_t startTime = millis();
+      String startMessage = "Begin Test! Begin time: " + String(startTime);
+      Serial.println(startMessage);
       while (1){
         uint16_t packet_id = 0;
         int txPower;
         int spreadingFactor = 7;
         int bandwidth = 125000;
-        for (int k = 62.5; k<=500; k*=2){
-          bandwidth = k * 1000;
+        for (int k = 62500; k<=500000; k*=2){
+          bandwidth = k;
           rf95.setSignalBandwidth(bandwidth);
-          //for (int j = 9; j >= 7; j--){
-            //rf95.setSpreadingFactor(j);
-            //spreadingFactor = j;
+          for (int j = 9; j >= 7; j--){
+            rf95.setSpreadingFactor(j);
+            spreadingFactor = j;
             for (int i = 20; i >= 2; i--){
               rf95.setTxPower(i, false);
               txPower = i;
@@ -330,7 +333,7 @@ void loop() {
                 uint8_t len = sizeof(buf);
                 uint8_t from;
                 if (manager.recvfromAckTimeout(buf, &len, listenTime, &from)) {
-                  uint16_t packet_id = (buf[0] << 8) | (buf[1]);
+                  uint16_t recvPacketId = (buf[0] << 8) | (buf[1]);
                   uint32_t sent_time = ((buf[2] << 24) | (buf[3] << 16) | (buf[4] << 8) | (buf[5]));
                   uint32_t recv_bw = ((buf[6] << 24) | (buf[7] << 16) | (buf[8] << 8) | (buf[9]));
                   uint32_t recv_txp = ((buf[10] << 24) | (buf[11] << 16) | (buf[12] << 8) | (buf[13]));
@@ -344,7 +347,7 @@ void loop() {
                   }
                   Serial.print("Got a message from address: "); Serial.print(from);
                   Serial.print(" [Packet ID :");
-                  Serial.print(packet_id);
+                  Serial.print(recvPacketId);
                   Serial.print("] [Sent Time :");
                   Serial.print(sent_time);
                   Serial.print("] [Recv Time :");
@@ -367,8 +370,12 @@ void loop() {
               }
             }
           }
-        //}
+        }
         delay(TEST_DELAY);  
       }
+      beginTest = 0;
+      uint32_t endTime = millis();
+      String endMessage = "End Test! End time: " + String(endTime);
+      Serial.println(endMessage);
     }
 }
