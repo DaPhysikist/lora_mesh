@@ -305,7 +305,7 @@ void loop() {
                   Serial.println(message);
                 } else {
                   uint32_t ackTime = millis();
-                  String message = "Message sent successfully. Packet ID: " + String(packet_id) + " Sent Time: " + String(sentTime) + " Ack Time: " + String(ackTime);
+                  String message = "Message sent successfully. Packet ID: " + String(packet_id) + " Sent Time: " + String(sentTime) + " Ack Time: " + String(ackTime) + " Bandwidth: " + String(bandwidth) + " TX Power: " + String(txPower) + " SF: " + String(spreadingFactor);
                   Serial.println(message);
                 }
                 packet_id++;
