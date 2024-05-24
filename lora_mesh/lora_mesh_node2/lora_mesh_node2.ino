@@ -218,6 +218,7 @@ void loop() {
         Serial.println(getErrorString(error));
       } else {
         Serial.println("Message sent successfully.");
+        Serial.println(millis());
       }
 
       // listen for incoming messages. Wait a random amount of time before we transmit
@@ -261,12 +262,15 @@ void loop() {
         for (int k = 62500; k<=500000; k*=2){
           bandwidth = k;
           rf95.setSignalBandwidth(bandwidth);
+          delay(100);
           for (int j = 9; j >= 7; j--){
             rf95.setSpreadingFactor(j);
             spreadingFactor = j;
+            delay(100);
             for (int i = 20; i >= 2; i--){
               rf95.setTxPower(i, false);
               txPower = i;
+              delay(100);
               for (int l = 0; l < 10; l++){
                 uint8_t packet_id_hi = (packet_id >> 8);
                 uint8_t packet_id_lo = (packet_id & 0xFF);
@@ -327,7 +331,7 @@ void loop() {
 
                 float payloadTime = (8 + max(ceil((8*payloadLength-4*spreadingFactor+28+16*crc-20*ih)/(4*(spreadingFactor-2*de)))*(cr+4), 0))*symbolTime;  //calculate payload time in ms based on datasheet formula
 
-                int listenTime = 2*ceil(preambleTime+payloadTime);  //calculate on air time in ms, rounded up to nearest integer, then multiply by two to account for both ways
+                int listenTime = 3*(ceil(preambleTime+payloadTime)+400);  //calculate on air time in ms, rounded up to nearest integer, then multiply by two to account for both ways
                 unsigned long nextTransmit = millis() + listenTime;
                 uint8_t buf[28];
                 uint8_t len = sizeof(buf);
