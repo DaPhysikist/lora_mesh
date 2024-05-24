@@ -225,6 +225,7 @@ void loop() {
     }
   }
   else if (beginTest == 1){
+    delay(1000);
     uint32_t startTime = millis();
     String startMessage = "Begin Test! Begin time: " + String(startTime);
     Serial.println(startMessage);
