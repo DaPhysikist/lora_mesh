@@ -23,7 +23,7 @@ def connect_to_feather():
     arduino_ports = []
     for p in serial.tools.list_ports.comports():
         if 'USB' in p.description or 'ACM' in p.device or 'Feather' in p.description or 'tty' in p.device:
-            arduino_ports.append(pevice)
+            arduino_ports.append(p)
     if not arduino_ports:
         raise IOError("No Arduino found")
     if len(arduino_ports) > 1:
