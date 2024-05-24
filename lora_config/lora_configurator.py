@@ -20,11 +20,10 @@ ser = None
 def connect_to_feather():
     global ser
 
-    arduino_ports = [
-        p.device
-        for p in serial.tools.list_ports.comports()
-        if 'USB' in p.description
-    ]
+    arduino_ports = []
+    for p in serial.tools.list_ports.comports():
+        if 'USB' in p.description or 'ACM' in p.device or 'usbmodem' in p.description:
+            arduino_ports.append(p.device) 
     if not arduino_ports:
         raise IOError("No Arduino found")
     if len(arduino_ports) > 1:
