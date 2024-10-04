@@ -1,5 +1,5 @@
 # lora_mesh
-Implementing LoRa Mesh on Adafruit M0 Feather Boards using the Radiohead library and Arduino. For more information, consult [Adafruit Arduino IDE Setup](https://learn.adafruit.com/adafruit-feather-m0-basic-proto/setup) and [RadioHead Docs](http://www.airspayce.com/mikem/arduino/RadioHead/index.html).
+Implementing a configurable LoRa mesh network on Adafruit Feather Boards using the Radiohead library and Arduino. For more information, consult [Adafruit Arduino IDE Setup](https://learn.adafruit.com/adafruit-feather-m0-basic-proto/setup) and [RadioHead Docs](http://www.airspayce.com/mikem/arduino/RadioHead/index.html).
 
 To deploy code onto nodes, download the repository and use the respective ino files provided in the lora_mesh folder.
 
